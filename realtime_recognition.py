@@ -3,6 +3,8 @@ import cv2
 import numpy as np
 import pickle
 import argparse
+from imutils.video import FPS
+import imutils
 
 
 # This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
@@ -34,10 +36,12 @@ face_locations = []
 face_encodings = []
 face_names = []
 process_this_frame = True
-
+# start the FPS counter
+fps = FPS().start()
 while True:
     # Grab a single frame of video
     ret, frame = video_capture.read()
+    frame = imutils.resize(frame, width=1000)
 
     # Resize frame of video to 1/4 size for faster face recognition processing
     small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
@@ -99,7 +103,11 @@ while True:
     # Hit 'q' on the keyboard to quit!
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+    fps.update()
 
+fps.stop()
+print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
+print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 # Release handle to the webcam
 video_capture.release()
 cv2.destroyAllWindows()

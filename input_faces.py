@@ -33,11 +33,12 @@ def open_img():
         img = ImageTk.PhotoImage(img)
         panel = Label(root, image=img)
         panel.image = img
-        panel.grid(row=int((index+4)/2), column=int(int(index+4) % 2 + 1))
+        panel.grid(row=int((index+6)/2), column=int(int(index+6) % 2 + 1))
 
 
 def submit():
     global filenames
+    progress['value'] = 0
     username = username_entry.get()
     if not os.path.exists("dataset/{}".format(username)):
         os.makedirs("dataset/{}".format(username))
@@ -59,11 +60,10 @@ def submit():
             knownEncodings.append(encoding)
             knownNames.append(username)
         cv2.imwrite("dataset/{}/{}".format(username, basename), image)
-    progress['value'] = int((index + 1)/len(filenames) * 100)
-    time.sleep(1)
-    root.update_idletasks()
+        progress['value'] = int((index + 1)/len(filenames) * 100)
+        time.sleep(1)
+        root.update_idletasks()
     data = {"encodings": knownEncodings, "names": knownNames}
-
     f = open("encodings.pickle", "wb")
     f.write(pickle.dumps(data))
     f.close()
@@ -81,16 +81,22 @@ root.geometry('%dx%d+%d+%d' % (700, 3000, 300, 150))
 
 # Allow Window to be resizable
 root.resizable(width=True, height=True)
+s = Style()
+s.theme_use("default")
+s.configure("TProgressbar", thickness=20)
+
 Label(master=root, text="Username").grid(row=0)
 username_entry = Entry(root)
 username_entry.grid(row=0, column=1)
-progress = Progressbar(root, orient=HORIZONTAL,
-                       length=100, mode='determinate')
+
+
 btn = Button(root, text='open image', command=open_img).grid(
     row=1, columnspan=1)
 
 
 submit = Button(root, text='Submit', command=submit).grid(
     row=1, columnspan=2)
-
-root.mainloop()
+progress = Progressbar(root, orient=HORIZONTAL,
+                       length=200, mode='determinate', style="TProgressbar")
+progress.grid(row=2, column=1)
+mainloop()
